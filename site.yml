@@ -1,0 +1,19 @@
+---
+- name: Provision CeylonaAcademy Infrastructure
+  hosts: local
+  connection: local
+  gather_facts: false
+
+  # Interactive Prompts (Sensitive data shouldn't be in files)
+  vars_prompt:
+    - name: aws_access_key
+      prompt: "Enter AWS Access Key ID"
+      private: no
+    - name: aws_secret_key
+      prompt: "Enter AWS Secret Access Key"
+      private: yes
+
+  # Run the Roles in Order
+  roles:
+    - aws_network
+    - aws_compute
