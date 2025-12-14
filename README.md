@@ -1,73 +1,118 @@
 # Automated AWS Infrastructure & GitHub Integration with Ansible
 
-This project automates the provisioning of a production-ready AWS environment using **Ansible**. It follows an industry-standard **Role-Based Architecture** to ensure modularity, scalability, and ease of maintenance.
+This project automates the provisioning of a production-ready AWS environment using **Ansible**. It follows an industry-standard **Role-Based Architecture** for modularity, scalability, and maintainability.
 
-The playbook performs the following actions:
-1.  **Network Setup:** Creates a custom VPC, Public Subnet, Internet Gateway, Route Tables, Network ACLs, and Security Groups.
-2.  **Compute Provisioning:** Dynamically fetches the latest Ubuntu 24.04 AMI and launches an EC2 instance.
-3.  **CI/CD Integration (Optional):** Automatically uploads the new server's IP and SSH Keys to GitHub Repository Secrets, enabling immediate deployment via GitHub Actions.
+---
 
-## Project Structure
+## 📁 Project Structure
 
 ```text
-CeylonaAcademy/
-├── ansible.cfg                 # Ansible configuration (Inventory path, SSH settings)
-├── site.yml                    # Master Playbook (Entry point)
+ExampleProject/
+├── ansible.cfg                 # Ansible configuration (inventory, SSH, output)
+├── site.yml                    # Master Playbook (entry point)
 ├── inventory/
 │   └── local                   # Localhost inventory definition
 ├── group_vars/
-│   └── all.yml                 # Global variables (Region, Project Name)
+│   └── all.yml                 # Global variables (region, project name)
 └── roles/
-    ├── aws_network/            # ROLE: Handles VPC, Subnets, Firewalls
-    ├── aws_compute/            # ROLE: Handles EC2 Instances & AMIs
-    └── github_integration/     # ROLE: Pushes secrets to GitHub (Optional)
+    ├── aws_network/            # VPC, Subnets, Firewalls
+    │   ├── defaults/
+    │   │   └── main.yml
+    │   └── tasks/
+    │       └── main.yml
+    └── aws_compute/            # EC2 Instances & AMIs
+        ├── defaults/
+        └── tasks/
+            └── main.yml
 
+```
 
-## Prerequisites
-Ensure you have the following installed on your control node (e.g., WSL2, Ubuntu, or Mac):
+---
 
-Ansible Core (sudo apt install ansible)
+## 🚀 Features
 
-Python 3 & Pip
+- **Network Setup:** Custom VPC, public subnet, Internet Gateway, route tables, NACLs, and security groups.
+- **Compute Provisioning:** Dynamically fetches the latest Ubuntu 24.04 AMI and launches an EC2 instance.
+- **CI/CD Integration (Optional):** Uploads server IP and SSH keys to GitHub Repository Secrets for seamless GitHub Actions deployment.
 
-AWS SDK for Python (pip install boto3 botocore)
+---
 
+## 🛠️ Prerequisites
 
-Ansible Collections:
+- **Ansible Core:**  
+  `sudo apt install ansible`
+- **Python 3 & pip**
+- **AWS SDK for Python:**  
+  `pip install boto3 botocore`
+- **Ansible Collections:**  
+  `ansible-galaxy collection install amazon.aws community.aws community.general`
 
-Bash
+---
 
-ansible-galaxy collection install amazon.aws community.aws community.general
+## ⚙️ Configuration
 
-Configuration
-1. Global Variables (group_vars/all.yml)
-Modify this file to change the region or project name foundation.
+**Global Variables:**  
+   Edit `group_vars/all.yml` to set your project name and AWS region:
+   ```yaml
+   project_name: "ExampleProject"
+   aws_region: "us-east-1"
+   ```
+---
 
-YAML
+## ▶️ Usage
 
-project_name: "CeylonaAcademy"
-aws_region: "us-east-1"
-2. Local Key Pair
-Ensure you have your SSH Private Key (e.g., virginia.pem) stored in the root directory. The github_integration role requires this file to read the key content.
-
-🛠️ Usage
-Run the master playbook using the command below. The ansible.cfg file automatically handles inventory paths.
-
-Bash
-
+Run the master playbook:
+```bash
 ansible-playbook site.yml
-Interactive Prompts
-For security, the playbook will ask for credentials at runtime:
+```
+You will be prompted for:
+- **AWS Access Key ID**
+- **AWS Secret Access Key**
 
-AWS Access Key ID: From your AWS IAM Dashboard.
+---
 
-AWS Secret Access Key: From your AWS IAM Dashboard.
+## 🔒 Security Notes
 
-(Optional/Commented) GitHub Token: If running the integration role.
+- **Network ACLs:** Stateless firewall allows web (80/443), SSH (22), and ephemeral ports (1024-65535).
+- **Security Groups:** Stateful firewall for EC2.
+- **Idempotency:** EC2 creation uses `exact_count: 1` to avoid duplicates.
 
-🛡️ Security Notes
-Network ACLs: Configured as a stateless firewall allowing standard Web (80/443) and SSH (22) traffic, plus ephemeral ports (1024-65535) for return traffic.
+---
 
-Security Groups: Stateful firewall rules applied to the EC2 instance.
+## 🏗️ Architecture Overview
 
-Idempotency: The EC2 task uses exact_count: 1 to prevent duplicate instances from being created on subsequent runs.
+### 1. `ansible.cfg`
+- Sets default inventory, disables host key checking, and enables YAML output.
+
+### 2. `site.yml`
+- Orchestrates prompts and roles: network → compute → (optional) GitHub integration.
+
+### 3. `aws_network` Role
+- Builds VPC, subnet, IGW, route tables, NACLs (including ephemeral ports), and security groups.
+
+### 4. `aws_compute` Role
+- Looks up latest Ubuntu AMI dynamically.
+- Launches a `t3.micro` EC2 instance with idempotency.
+
+---
+
+## 🏃 Quickstart
+
+1. **Get AWS Access Keys:**  
+   - AWS Console → IAM → Users → Security Credentials → Create Access Key
+
+2. **Run the Playbook:**  
+   ```bash
+   ansible-playbook site.yml
+   ```
+   Enter credentials when prompted.
+
+3. **Result:**  
+   Infrastructure is provisioned and ready for CI/CD deployment.
+
+---
+
+## 📚 Further Reading
+
+See the included Medium article draft for a detailed breakdown of each file and architectural decision.
+

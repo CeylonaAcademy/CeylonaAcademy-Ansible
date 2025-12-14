@@ -1,5 +1,5 @@
 # Project Constants
-project_name: "CeylonaAcademy"
+project_name: "ExampleProject"
 aws_region: "us-east-1"
 
 # Credentials (In real life, use Ansible Vault for these!)
