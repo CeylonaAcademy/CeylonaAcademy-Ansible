@@ -1,0 +1,26 @@
+---
+- name: Provision CeylonaAcademy Infrastructure
+  hosts: local
+  connection: local
+  gather_facts: false
+
+  # Interactive Prompts (Sensitive data shouldn't be in files)
+  vars_prompt:
+    - name: aws_access_key
+      prompt: "Enter AWS Access Key ID"
+      private: no
+    - name: aws_secret_key
+      prompt: "Enter AWS Secret Access Key"
+      private: yes
+    # - name: github_token
+    #   prompt: "Enter GitHub PAT Token"
+    #   private: yes
+    # - name: github_repo
+    #   prompt: "Enter GitHub Repo (User/Repo)"
+    #   private: no
+
+  # Run the Roles in Order
+  roles:
+    - aws_network
+    - aws_compute
+    # - github_integration

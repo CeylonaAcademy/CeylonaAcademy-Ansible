@@ -1,0 +1,7 @@
+# Project Constants
+project_name: "CeylonaAcademy"
+aws_region: "us-east-1"
+
+# Credentials (In real life, use Ansible Vault for these!)
+# For now, we will pass these via prompts in the master file,
+# so we define placeholders here or leave them blank.

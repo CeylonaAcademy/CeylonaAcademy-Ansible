@@ -1,0 +1,35 @@
+- name: Find latest Ubuntu 24.04 AMI
+  amazon.aws.ec2_ami_info:
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    owners: ["099720109477"]
+    filters:
+      name: "ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"
+      architecture: x86_64
+  register: ubuntu_ami
+
+- name: Launch EC2 Instance
+  amazon.aws.ec2_instance:
+    name: "{{ project_name }}-Web-Server"
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    key_name: "{{ key_pair_name }}"
+    instance_type: "{{ instance_type }}"
+    image_id: "{{ (ubuntu_ami.images | sort(attribute='creation_date'))[-1].image_id }}"
+    security_group: "{{ sg_result.group_id }}"
+    vpc_subnet_id: "{{ subnet_result.subnet.id }}"
+    network_interfaces:
+      - assign_public_ip: true
+    exact_count: 1
+    filters:
+      "tag:Name": "{{ project_name }}-Web-Server"
+      instance-state-name: running
+    tags:
+      Name: "{{ project_name }}-Web-Server"
+  register: ec2_result
+
+- name: Display IP
+  debug:
+    msg: "Server Public IP: {{ ec2_result.instances[0].public_ip_address }}"
