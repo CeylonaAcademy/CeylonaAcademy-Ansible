@@ -22,6 +22,7 @@ ExampleProject/
     │       └── main.yml
     └── aws_compute/            # EC2 Instances & AMIs
         ├── defaults/
+        │   └── main.yml
         └── tasks/
             └── main.yml
 
